@@ -1,0 +1,1 @@
+sml use "typechecker.sml"

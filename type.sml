@@ -30,4 +30,3 @@ fun update E (x : string) (ty : typ) y =
 	if x = y 
 	then ty 
 	else E y
-

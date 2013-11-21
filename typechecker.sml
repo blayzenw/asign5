@@ -24,7 +24,7 @@ exception TypeError
 
 (* typeOf : env -> TE -> typ *)
 fun typeOf env (Literal x)       = INT
-  | typeOf env (Variable x)      = VAR x
+  | typeOf env (Variable x)      = env x
   | typeOf env (Plus(x, y))      = 
         let val t1 = typeOf env x
             val t2 = typeOf env y
@@ -51,8 +51,21 @@ fun typeOf env (Literal x)       = INT
         end    
 
           
-  | typeOf env (App(e1,e2))      = raise Unimplemented
-  | typeOf env (Rec(i,t,e))      = raise Unimplemented
+  | typeOf env (App(e1,e2))      = 
+		let val t1 = typeOf env e1
+			  val t2 = typeOf env e2
+		in case  t1 of  ARROW(t3,t4) =>
+			if (t2 = t3)
+			then t4
+			else raise TypeError
+		| _=> raise TypeError
+		end
+  | typeOf env (Rec(i,t,e))   = 
+	let val new_env = update env i t
+		  
+	in
+		typeOf new_env e
+	end
   
   | typeOf env (Bool x)          = BOOL
   | typeOf env (IsZero(x))       = 
@@ -91,8 +104,8 @@ val test2 = Lambda("f", ARROW(VAR "b", VAR "c"),
                             App(Variable "g", Variable "x")))));
 
 (* fn b => if b then 1 else 0 *)
-val test3 = (Lambda("b", BOOL,
-                IfThenElse(Variable "b", Literal 1, Literal 0))));
+val test3 = Lambda("b", BOOL,
+                IfThenElse(Variable "b", Literal 1, Literal 0));
 
 
 (* feel free to write your own test expressions! *)
