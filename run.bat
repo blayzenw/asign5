@@ -1,1 +1,1 @@
-sml use "typechecker.sml"
+sml
