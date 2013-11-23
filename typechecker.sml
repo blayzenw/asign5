@@ -52,8 +52,9 @@ fun typeOf env (Literal x)       = INT
 
           
   | typeOf env (App(e1,e2))      = 
-		let val t1 = typeOf env e1
-			  val t2 = typeOf env e2
+		let 
+			val t1 = typeOf env e1
+			val t2 = typeOf env e2
 		in case  t1 of  ARROW(t3,t4) =>
 			if (t2 = t3)
 			then t4
