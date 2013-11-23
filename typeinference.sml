@@ -111,18 +111,18 @@ fun W (E, Literal n)     = (identity, INT)
 (*
 |   W (E, Lett(l, e1,e2)) =
 *)
+(*
+|   W (E, Rec(i,t,e))    =
+*)
 |   W (E, App(e1,e2))    =
 	let
 		val (s1, t1) = W(E, e1)
 		val (s2, t2) = W(s1 o E, e2)
 		val new_typevar = newtypevar()
-		val s3 = unify(s2 t1, s2 ARROW())
+		val s3 = unify(s2 t1, ARROW(t2, (s2 o s1) new_typevar))
 	in
-		(s3 o s2 o s1, s3 t2)
+		(s3 o s2 o s1, s3 new_typevar)
 	end
-(*
-|   W (E, Rec(i,t,e))    =
-*)
 |   W (E, IsZero(x))     =
 	let
 		val (s1, t1) = W(E, x)
