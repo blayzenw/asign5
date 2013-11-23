@@ -1,3 +1,5 @@
+(*  Original version by Geoffrey Smith - http://users.cs.fiu.edu/~smithg/  *)
+
 use "type.sml";
 
 (* A modified term datatype to allow us to type our function arguments *)
@@ -17,7 +19,7 @@ datatype TE =
 exception Unimplemented
 exception TypeError
 
-(*  A substitution is just a function typ -&gt; typ.  *)
+(*  A substitution is just a function typ -> typ.  *)
 
 fun identity (t : typ) = t
 
@@ -30,7 +32,7 @@ fun replace (a, t) (VAR b) =
 |   (* No effect on other types. *)
     replace (a, t) t1 = t1
 
-(*  occurs : string * typ -&gt; bool  *)
+(*  occurs : string * typ -> bool  *)
 
 fun occurs (a, VAR b)         = (a = b)
 |   occurs (a, ARROW(t1, t2)) = occurs (a, t1) orelse occurs (a, t2)
@@ -39,7 +41,7 @@ fun occurs (a, VAR b)         = (a = b)
 exception Circularity
 exception Mismatch
 
-(*  unify : typ * typ -&gt; (typ -&gt; typ)  *)
+(*  unify : typ * typ -> (typ -> typ)  *)
 
 fun unify (VAR a, t) =
       if VAR a = t then identity
@@ -68,7 +70,7 @@ in
   fun newtypevar () = (
     if null (! typevars) then (
       cnt := ! cnt + 1;
-      typevars := map (fn s =&gt; s ^ Int.toString (! cnt)) letters
+      typevars := map (fn s => s ^ Int.toString (! cnt)) letters
     ) else ();
     VAR (hd (! typevars)) before (typevars := tl (! typevars))
   )
@@ -79,7 +81,7 @@ in
   )
 end
 
-(*  Milner's algorithm W : (string -&gt; typ) * TE -&gt; (typ -&gt; typ) * typ
+(*  Milner's algorithm W : (string -> typ) * TE -> (typ -> typ) * typ
  * 
  *  I have included the code for Literal and IfThenElse; you must complete
  *  the other cases!
@@ -91,19 +93,21 @@ fun W (E, Literal n)     = (identity, INT)
 |   W (E, Plus(x,y))     =
 	let
 		val (s1, t1) = W(E, x)
-		val (s2, t2) = W(s1 o E, y)
-		val s3 = unity(t1, INT)
-		val s4 = unify(t2, INT)
+		val s2 = unify(t1, INT)
+		val (s3, t2) = W(s2 o s1 o E, y)
+		val s4 = unify(s3 t2, INT)
 	in
-		(s4 o s3 o s2 o s1, s4 t2)
-		
+		(s4 o s3 o s2 o s1, ARROW(INT, INT))
+	end
+(*		
 |   W (E, Lambda(i,t,e)) =
 	let
 		val newenv = update(E, id, newtypevar())
 		val (s, t) = W(E, newenv, e)
 	in
 		(s, s ARROW(newenv,t))
-|   W (E, Lett(l,e1,e2)) = *)
+|   W (E, Lett(l,e1,e2)) =
+*)
 
 |   W (E, App(e1,e2))    =
 	let
@@ -112,15 +116,16 @@ fun W (E, Literal n)     = (identity, INT)
 		val s3 = unify(s2 t1, t2)
 	in
 		(s3 o s2 o s1, s3 t2)
-		
+(*
 |   W (E, Rec(i,t,e))    =
-
+*)
 |   W (E, IsZero(x))     =
 	let
 		val (s1, t1) = W(E, x)
 		val s2 = unify(t1, INT)
 	in
-		(s2 o s1, s2 t1)
+		(s2 o s1, ARROW(INT, BOOL))
+	end
 	
 |   W (E, IfThenElse (e1, e2, e3)) =
     let val (s1, t1) = W (E, e1)

@@ -61,8 +61,8 @@ fun typeOf env (Literal x)       = INT
 		| _=> raise TypeError
 		end
   | typeOf env (Rec(i,t,e))   = 
-	let val new_env = update env i t
-		  
+	let 
+		val new_env = update env i t  
 	in
 		typeOf new_env e
 	end
