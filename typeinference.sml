@@ -99,7 +99,7 @@ fun W (E, Literal n)     = (identity, INT)
 	in
 		(s4 o s3 o s2 o s1, ARROW(INT, INT))
 	end
-(*		
+		
 |   W (E, Lambda(i,t,e)) =
 	let
 		val newenv = update(E, id, newtypevar())
@@ -107,13 +107,9 @@ fun W (E, Literal n)     = (identity, INT)
 	in
 		(s, s ARROW(newenv,t))
 |   W (E, Lett(l,e1,e2)) =
-*)
-(*
-|   W (E, Lett(l, e1,e2)) =
-*)
-(*
+
 |   W (E, Rec(i,t,e))    =
-*)
+
 |   W (E, App(e1,e2))    =
 	let
 		val (s1, t1) = W(E, e1)
